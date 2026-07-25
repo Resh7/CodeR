@@ -1,0 +1,147 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+model User {
+  id           String      @id @default(cuid())
+  username     String      @unique
+  email        String?     @unique
+  name         String?
+  passwordHash String
+  status       UserStatus  @default(ACTIVE)
+  roleId       String
+  role         Role        @relation(fields: [roleId], references: [id])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  users       User[]
+  permissions RolePermission[]
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  key         String           @unique
+  label       String
+  roles       RolePermission[]
+}
+
+model RolePermission {
+  roleId       String
+  permissionId String
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String
+  features    String   @default("[]")
+  imageUrl    String?
+  logoUrl     String?
+  brochureUrl String?
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model GalleryItem {
+  id          String   @id @default(cuid())
+  title       String
+  category    String
+  mediaType   String   @default("image")
+  mediaUrl    String
+  thumbnailUrl String?
+  altText     String?
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Testimonial {
+  id          String   @id @default(cuid())
+  name        String
+  company     String?
+  designation String?
+  photoUrl    String?
+  review      String
+  rating      Int      @default(5)
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  logoUrl   String
+  website   String?
+  sortOrder Int      @default(0)
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Certificate {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String?
+  pdfUrl      String?
+  sortOrder   Int      @default(0)
+  published   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model PageContent {
+  id        String   @id @default(cuid())
+  section   String
+  key       String
+  value     String
+  valueType String   @default("text")
+  updatedAt DateTime @updatedAt
+
+  @@unique([section, key])
+}
+
+model MediaAsset {
+  id          String   @id @default(cuid())
+  name        String
+  fileName    String
+  mimeType    String
+  url         String
+  folder      String   @default("/")
+  altText     String?
+  size        Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}
