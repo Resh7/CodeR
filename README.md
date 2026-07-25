@@ -74,7 +74,18 @@ SUPABASE_STORAGE_BUCKET=website-media
 
 Generate a secure `NEXTAUTH_SECRET`. Do not use the example secret.
 
-### 5. Deploy
+### 5. Initialize the database
+
+Before the first deployment, load the real `DATABASE_URL` in a trusted local environment and run:
+
+```text
+npm run db:push
+npm run db:seed
+```
+
+These commands create the database schema and initial administrator data. Run them intentionally when database setup or seed data changes; they are not part of the Netlify build.
+
+### 6. Deploy
 
 Trigger the first deployment.
 
@@ -82,12 +93,8 @@ The Netlify build automatically runs:
 
 ```text
 prisma generate
-prisma db push
-prisma seed
 next build
 ```
-
-The database tables, permissions, default services and administrator account are created automatically.
 
 ## Administrator access
 
